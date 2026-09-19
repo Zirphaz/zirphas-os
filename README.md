@@ -3,6 +3,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/Zirphaz/zirphas-os/actions/workflows/ci.yml"><img src="https://github.com/Zirphaz/zirphas-os/actions/workflows/ci.yml/badge.svg?branch=main" alt="Testes e migrações no GitHub Actions"></a>
   <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI">
   <img src="https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 17">
