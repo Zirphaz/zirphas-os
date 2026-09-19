@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer"><title>Seu reparo · ZirphasOS</title>
+  <link rel="stylesheet" href="/assets/portal.css"><script src="/assets/portal.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="#"><span class="mark">Z</span>Zirphas<span>OS</span></a><span class="header-note">ACOMPANHAMENTO DE REPARO</span></header>
+  <main>
+    <div class="eyebrow">TRANSPARÊNCIA EM CADA ETAPA</div>
+    <h1>Seu aparelho.<br><span>Sempre por perto.</span></h1>
+    <p class="intro">Acompanhe o reparo e confira seu orçamento, tudo em um só lugar.</p>
+    <p id="message" role="status" aria-live="polite">Carregando seu atendimento…</p>
+    <section id="order" hidden>
+      <div class="card heading"><div><p class="label" id="order-number"></p><h2 id="device"></h2></div><span class="badge" id="status"></span></div>
+      <ol class="timeline" aria-label="Etapas do reparo">
+        <li data-state="intake"><i></i><span>Recebido</span></li><li data-state="analyzing"><i></i><span>Análise</span></li>
+        <li data-state="awaiting_approval"><i></i><span>Orçamento</span></li><li data-state="repairing"><i></i><span>Reparo</span></li>
+        <li data-state="completed"><i></i><span>Pronto</span></li><li data-state="delivered"><i></i><span>Entregue</span></li>
+      </ol>
+      <div class="columns"><section class="card"><p class="label">O QUE ACONTECE AGORA</p><h2 id="next-title"></h2><p id="next-body" class="muted"></p><p id="updated" class="small"></p></section>
+      <section class="card" id="quote"><p class="label">SEU ORÇAMENTO</p><p id="draft" class="muted"></p><div id="quote-values" hidden><ul id="parts"></ul>
+        <div class="price-row"><span>Mão de obra</span><strong id="labor"></strong></div><div class="price-row total"><span>Total</span><strong id="total"></strong></div>
+        <p id="report" class="report"></p><p id="quote-version" class="small"></p><div id="actions" hidden><button id="approve" type="button">Aprovar orçamento</button><button id="decline" class="secondary" type="button">Recusar orçamento</button></div>
+        <p id="approved-note" class="small"></p></div></section></div>
+    </section>
+    <footer><span class="dot"></span>Atualização automática a cada 10 segundos.<br><span class="private">Este link é pessoal. Compartilhe apenas com quem pode decidir sobre o reparo.</span></footer>
+  </main>
+</body></html>

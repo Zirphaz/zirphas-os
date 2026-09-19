@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="168" viewBox="0 0 680 168" role="img" aria-labelledby="title desc">
+  <title id="title">ZirphasOS — Smart Repair Management</title>
+  <desc id="desc">Marca ZirphasOS com um circuito formando a letra Z em azul e verde.</desc>
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#49e0c4"/>
+      <stop offset="1" stop-color="#45a5ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="680" height="168" rx="20" fill="#101c2e"/>
+  <rect x="26" y="26" width="116" height="116" rx="26" fill="#18304b" stroke="#285074"/>
+  <path d="M58 58h52L58 110h52" fill="none" stroke="url(#brand)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="58" cy="58" r="9" fill="#49e0c4"/>
+  <circle cx="110" cy="110" r="9" fill="#45a5ff"/>
+  <text x="168" y="90" fill="#f4f8ff" font-family="Segoe UI,Arial,sans-serif" font-size="49" font-weight="700" letter-spacing="-1.4">Zirphas<tspan fill="#49e0c4">OS</tspan></text>
+  <text x="171" y="121" fill="#adc2da" font-family="Segoe UI,Arial,sans-serif" font-size="18" letter-spacing="1.2">SMART REPAIR MANAGEMENT</text>
+</svg>
