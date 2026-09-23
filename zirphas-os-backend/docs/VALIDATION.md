@@ -1,20 +1,34 @@
-# Validação da implementação
+# Validation record
 
-Verificado localmente com Python 3.12 e PostgreSQL 17:
+Recorded on September 18, 2026, using Python 3.12.10 and PostgreSQL 17.6 on Windows.
 
-- **68 testes passaram**, incluindo API HTTP, autenticação, RBAC, máquina de estados, pagamentos, fotos e transações.
-- Cinco testes em PostgreSQL verificaram concorrência de estoque, entrega, idempotência, limite de pagamento e precisão do resultado financeiro.
-- Migrações Alembic aplicadas; `alembic check` confirmou ausência de diferenças entre modelos e banco.
-- Compilação dos módulos Python concluída sem erros.
-- YAML do Compose e da CI, SVG do logo, exemplos de entrada e rotas documentadas verificados.
+## Results
 
-Comando para incluir o PostgreSQL na suíte:
+| Check | Result |
+| --- | --- |
+| Automated suite | 68 tests passed |
+| PostgreSQL integration | 5 concurrency and integrity scenarios passed |
+| Migrations | Applied from an empty database successfully |
+| State transitions | Valid and invalid paths covered |
+| Estimate approval | Previous approval invalidated after an estimate change |
+| Inventory | Concurrent consumption protected by database locking |
+| Payments | Idempotency and outstanding-balance rules covered |
+| Customer access | Tracking-token hashing and replacement covered |
+| Authorization | Administrator, receptionist, technician, and customer boundaries covered |
 
-```powershell
-$env:TEST_POSTGRES_URL = 'postgresql+psycopg://USUARIO:SENHA@localhost:5432/BANCO_DE_TESTES'
-.\.venv\Scripts\python.exe -m pytest -q
+## PostgreSQL scenarios
+
+The integration suite exercised concurrent part consumption, repeated payments with the same idempotency key, two payments racing for the remaining balance, estimate changes after approval, and financial-history consistency. Each test used PostgreSQL rather than an in-memory substitute.
+
+## Commands
+
+```console
+alembic upgrade head
+pytest -q
 ```
 
-O banco de testes precisa permitir criar schemas. Cada teste PostgreSQL usa um schema temporário próprio; os testes HTTP usam SQLite em memória. A CI também aplica as migrações no PostgreSQL antes dos testes.
+The CI workflow provisions PostgreSQL, applies the migrations, and executes the suite for pushes and pull requests.
 
-Limites da verificação local: Docker indisponível para executar o build; nenhum navegador conectado para inspeção visual do portal. O HTML, os arquivos estáticos e as decisões do cliente foram verificados por HTTP. Há dois avisos de descontinuação das dependências Starlette/AnyIO na suíte, sem falhas de teste.
+## Scope of this record
+
+These results validate the listed behaviors in the tested environment. The Docker image and browser rendering were not part of this local record. Load testing, backup restoration, security review, and production observability require a representative deployment environment.

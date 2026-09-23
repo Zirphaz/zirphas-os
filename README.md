@@ -3,110 +3,83 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Zirphaz/zirphas-os/actions/workflows/ci.yml"><img src="https://github.com/Zirphaz/zirphas-os/actions/workflows/ci.yml/badge.svg?branch=main" alt="Testes e migrações no GitHub Actions"></a>
+  <a href="https://github.com/Zirphaz/zirphas-os/actions/workflows/ci.yml"><img src="https://github.com/Zirphaz/zirphas-os/actions/workflows/ci.yml/badge.svg?branch=main" alt="GitHub Actions status"></a>
   <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI">
   <img src="https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 17">
-  <img src="https://img.shields.io/badge/SQLAlchemy-2-D71F00?logo=sqlalchemy&logoColor=white" alt="SQLAlchemy 2">
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" alt="Docker Compose">
 </p>
 
-# ZirphasOS — Smart Repair Management
+# ZirphasOS
 
-Gestão de assistência técnica, da entrada do aparelho à entrega paga. Backend em **FastAPI + PostgreSQL**, com controle de acesso por função, aprovação de orçamento, rastreabilidade de peças e resultado financeiro por serviço.
+ZirphasOS models the workflow of an electronics repair shop, from device intake to paid delivery. The back end uses **FastAPI and PostgreSQL** and keeps estimates, parts, payments, permissions, and order transitions under explicit business rules.
 
-**[Documentação da API e instalação](zirphas-os-backend/README.md)** · **[Código](zirphas-os-backend/app)** · **[Testes](zirphas-os-backend/tests)** · **[Validação registrada](zirphas-os-backend/docs/VALIDATION.md)**
+[Setup and API guide](zirphas-os-backend/README.md) · [Application code](zirphas-os-backend/app) · [Tests](zirphas-os-backend/tests) · [Validation record](zirphas-os-backend/docs/VALIDATION.md)
 
-## O problema
+## Why this project exists
 
-Quando bancada e recepção trabalham sem um processo compartilhado, o orçamento pode mudar depois do aceite, uma peça pode ser prometida duas vezes e um aparelho pode sair sem quitação. O ZirphasOS reúne essas decisões em uma ordem de serviço com regras de transição, histórico e operações transacionais no banco.
+Repair shops coordinate reception, technicians, inventory, and payments around the same device. Without a shared workflow, an accepted estimate can change, one part can be consumed twice, or a device can be released before payment. ZirphasOS keeps these decisions in one repair order with controlled state transitions and transactional database operations.
 
-## Funcionalidades
+## Main capabilities
 
-- **Atendimento:** clientes, aparelhos com IMEI ou número de série, checklist físico e fotos de entrada.
-- **Reparo:** atribuição de técnico, laudo, orçamento versionado e peças vinculadas à OS.
-- **Portal do cliente:** acompanhamento por link privado e aprovação ou recusa do orçamento, sem cadastro.
-- **Estoque:** baixa na conclusão, com validação de disponibilidade e proteção contra consumo concorrente.
-- **Financeiro:** pagamentos parciais com idempotência, recibo não fiscal e entrega condicionada à quitação.
-- **Gestão:** indicadores administrativos de receita, resultado dos serviços, produtividade e estoque crítico.
+- Customer and device intake, including serial numbers, physical checklists, and attachments
+- Technician assignment, diagnostic reports, versioned estimates, and customer decisions
+- Customer tracking through a private token, without requiring an account
+- Inventory validation and transactional part consumption when a repair is completed
+- Idempotent partial payments and delivery only after full payment
+- Administrative revenue, margin, productivity, and low-stock indicators
 
-| Perfil | Responsabilidade |
+| Role | Access |
 | --- | --- |
-| Administrador | Funcionários, estoque, atribuição de técnicos e indicadores financeiros. |
-| Recepção | Clientes, abertura de OS, fotos, aceite, pagamentos, recibos e entrega. |
-| Técnico | Fila de aparelhos, laudos, orçamentos, peças e reparos sob sua responsabilidade. |
-| Cliente | Status e decisão sobre a versão atual do orçamento por link privado. |
+| Administrator | Staff, inventory, assignments, and financial indicators |
+| Receptionist | Customers, orders, attachments, payments, receipts, and delivery |
+| Technician | Assigned devices, diagnostics, estimates, parts, and repair work |
+| Customer | Current order status and estimate decision through a private link |
 
-Funcionários se autenticam com **JWT**; as senhas usam **Argon2**. Custos, comissões e resultados financeiros são restritos ao administrador. O banco armazena somente o hash do token de acompanhamento, e a geração de outro link revoga o anterior.
+Staff authentication uses JWT and Argon2 password hashing. Financial cost and margin data is restricted to administrators. Customer tracking tokens are stored as hashes, and issuing a replacement invalidates the previous link.
 
-## Arquitetura e ciclo da OS
+## Order lifecycle
 
-O **State Pattern** define as transições permitidas em [`os_state_machine.py`](zirphas-os-backend/app/core/os_state_machine.py). Os serviços verificam requisitos e aplicam os efeitos no estoque e no caixa dentro da transação da requisição. O administrador também respeita o ciclo.
+The [state machine](zirphas-os-backend/app/core/os_state_machine.py) defines allowed transitions. Service methods verify the requirements and apply inventory and financial effects in the same request transaction.
 
 ```mermaid
 stateDiagram-v2
-    state "Em análise" as Analise
-    state "Aguardando aprovação" as Aprovacao
-    state "Aguardando peça" as Peca
-    state "Na bancada" as Bancada
-    state "Concluído" as Concluido
-
-    [*] --> Entrada
-    Entrada --> Analise: técnico assume
-    Analise --> Aprovacao: laudo e orçamento
-    Aprovacao --> Analise: recusa
-    Aprovacao --> Peca: aceite e falta de estoque
-    Aprovacao --> Bancada: aceite e estoque disponível
-    Peca --> Bancada: estoque reposto
-    Bancada --> Concluido: baixa de peças e resultado
-    Concluido --> Entregue: quitação
-    Entregue --> [*]
+    [*] --> Intake
+    Intake --> Analysis: technician accepts
+    Analysis --> AwaitingApproval: diagnostic and estimate
+    AwaitingApproval --> Analysis: customer rejects
+    AwaitingApproval --> AwaitingParts: approved, stock unavailable
+    AwaitingApproval --> Repairing: approved, stock available
+    AwaitingParts --> Repairing: stock replenished
+    Repairing --> Completed: parts consumed and result recorded
+    Completed --> Delivered: balance paid
+    Delivered --> [*]
 ```
 
-Alterar o orçamento invalida o aceite anterior. Vincular peças à OS não reserva estoque: a disponibilidade é conferida novamente na conclusão, e uma falha reverte toda a operação.
+Editing an estimate invalidates its previous approval. Adding a part to an order does not reserve stock; availability is checked again when the repair is completed, and any failure rolls the operation back.
 
-```text
-zirphas-os-backend/
-├── app/
-│   ├── api/          # Rotas, dependências e permissões
-│   ├── core/         # Configuração, segurança e máquina de estados
-│   ├── models/       # Entidades SQLAlchemy
-│   ├── schemas/      # Contratos Pydantic
-│   └── services/     # Regras de negócio e transações
-├── alembic/          # Migrações versionadas
-├── tests/            # Domínio, API e concorrência
-└── docker-compose.yml
-```
+## Financial model
 
-## Financeiro incorporado
+`order result = total price - part cost - commission`
 
-**Resultado da OS = valor total − custo das peças − comissão.** Valores usam `Decimal` e `NUMERIC`; preços e custos são preservados no histórico da OS. Uma OS de R$ 350,00, com R$ 120,00 em peças e R$ 30,00 de comissão, registra resultado de **R$ 200,00**.
+Money uses `Decimal` and PostgreSQL `NUMERIC`. Historical prices and costs remain attached to the order. Payments are internal records; the project does not process bank transactions or issue tax documents.
 
-A receita entra no caixa na entrega, após quitação. O resultado por serviço não inclui impostos, aluguel ou demais despesas da empresa. Os pagamentos são registros internos; não há processamento bancário nem emissão fiscal.
+## Run locally
 
-## Executar localmente
-
-Requisitos: Docker com Compose v2. No terminal, entre em `zirphas-os-backend`. Antes da primeira execução, copie `.env.example` para `.env` e configure `POSTGRES_PASSWORD` e `SECRET_KEY` com valores fortes e distintos; a [documentação contém os comandos de preparação](zirphas-os-backend/README.md#executar-com-docker).
-
-Com o ambiente configurado, suba banco e API em dois comandos:
+Requirements: Docker with Compose v2.
 
 ```console
+cd zirphas-os-backend
+cp .env.example .env
 docker compose up -d db
 docker compose up --build -d api
-```
-
-As migrações são aplicadas na inicialização. Crie o primeiro administrador uma única vez:
-
-```console
 docker compose exec api python -m app.cli create-admin
 ```
 
-Acesse **[Swagger em localhost:8000/docs](http://localhost:8000/docs)**. Em **Authorize**, use o e-mail cadastrado no campo `username`. Nenhuma conta ou senha de administrador é predefinida.
+Set strong, distinct values for `POSTGRES_PASSWORD` and `SECRET_KEY` before starting. Open [Swagger UI](http://localhost:8000/docs) and use the administrator email in the OAuth `username` field. The project does not include a default administrator account or password.
 
-## Testes e escopo
+## Validation and current scope
 
-A [validação local registrada](zirphas-os-backend/docs/VALIDATION.md) documenta **68 testes aprovados**, incluindo **cinco cenários em PostgreSQL** sobre concorrência e integridade financeira. A [CI](.github/workflows/ci.yml) aplica as migrações e executa a suíte com PostgreSQL. Consulte a [documentação de desenvolvimento](zirphas-os-backend/README.md#desenvolvimento-e-testes) para reproduzir os testes.
+The recorded suite contains **68 passing tests**, including five PostgreSQL scenarios for concurrency and financial integrity. CI applies migrations and runs the suite against PostgreSQL. The [validation record](zirphas-os-backend/docs/VALIDATION.md) separates completed checks from work that still requires a deployment environment.
 
-Esta versão atende uma assistência técnica e inclui um portal externo com consulta automática a cada 10 segundos. A operação interna é feita pela API/Swagger; ainda não há painel web para funcionários, WebSocket, isolamento entre empresas ou notificações por WhatsApp/e-mail.
-
-O Compose atende desenvolvimento e avaliação local. O build Docker e a inspeção visual em navegador não foram executados na validação registrada; os detalhes e demais limites estão no [relatório de validação](zirphas-os-backend/docs/VALIDATION.md).
+The current version provides the back-end API and a customer tracking page. Staff operations use Swagger; a dedicated staff dashboard, multi-company isolation, real-time updates, and external notifications remain outside the implemented scope.
