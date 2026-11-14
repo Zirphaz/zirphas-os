@@ -13,10 +13,18 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.core.config import get_settings
+from app.core.login_throttle import login_throttle
 from app.core.security import create_access_token, hash_password
 from app.db import get_db
 from app.main import app
 from app.models import Base, Role, User
+
+
+@pytest.fixture(autouse=True)
+def reset_login_throttle():
+    login_throttle.clear()
+    yield
+    login_throttle.clear()
 
 
 @pytest.fixture

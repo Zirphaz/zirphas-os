@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     upload_dir: Path = Path("uploads")
     max_upload_bytes: int = Field(default=5 * 1024 * 1024, ge=1024, le=25 * 1024 * 1024)
     cors_origins: list[str] = Field(default_factory=list)
+    login_max_failures: int = Field(default=5, ge=1, le=100)
+    login_window_seconds: int = Field(default=900, ge=1, le=86400)
 
     @field_validator("secret_key")
     @classmethod

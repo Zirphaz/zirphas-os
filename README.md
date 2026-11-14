@@ -36,7 +36,7 @@ Repair shops coordinate reception, technicians, inventory, and payments around t
 | Technician | Assigned devices, diagnostics, estimates, parts, and repair work |
 | Customer | Current order status and estimate decision through a private link |
 
-Staff authentication uses JWT and Argon2 password hashing. Financial cost and margin data is restricted to administrators. Customer tracking tokens are stored as hashes, and issuing a replacement invalidates the previous link.
+Staff authentication uses JWT and Argon2 password hashing. Repeated failed logins for the same client IP and e-mail are throttled with HTTP 429, and login attempts are written as JSON security events (`zirphas.security` logger) with the e-mail replaced by a hash fingerprint. Financial cost and margin data is restricted to administrators. Customer tracking tokens are stored as hashes, and issuing a replacement invalidates the previous link.
 
 ## Order lifecycle
 
