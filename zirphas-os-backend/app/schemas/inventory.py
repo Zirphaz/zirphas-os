@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from app.schemas.common import InputModel, OutputModel, Money, ShortText
+from app.schemas.common import InputModel, Money, OutputModel, ShortText
 
 
 class PartCreate(InputModel):

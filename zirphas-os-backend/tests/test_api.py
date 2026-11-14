@@ -5,7 +5,6 @@ import pytest
 from PIL import Image
 from sqlalchemy import func, select
 
-from app.core.config import get_settings
 from app.models import CashEntry, Part, Payment, ServiceOrder
 
 BASE = "/api/v1"
@@ -151,7 +150,7 @@ def test_approved_quote_cannot_be_edited(api):
 
 def test_photos_are_validated_private_and_frozen_after_submission(api):
     client, h, _ = api
-    oid, token, _, _ = prepare(api, submit=False)
+    oid, _token, _, _ = prepare(api, submit=False)
     endpoint = BASE + f"/orders/{oid}/attachments"
     fake = client.post(endpoint, headers=h["front_desk"], files={"file": ("fake.jpg", b"<script>alert(1)</script>", "image/jpeg")})
     assert fake.status_code == 422
