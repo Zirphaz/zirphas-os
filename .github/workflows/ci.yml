@@ -38,7 +38,7 @@ jobs:
       TEST_POSTGRES_URL: postgresql+psycopg://zirphas_test:isolated_ci_database@localhost:5432/zirphas_test
       SECRET_KEY: ci-only-ephemeral-signing-key-at-least-32-characters
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -67,7 +67,7 @@ jobs:
       run:
         working-directory: zirphas-os-backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
