@@ -8,8 +8,19 @@ from sqlalchemy import select
 
 from app.api.dependencies import CurrentUser, DatabaseSession, require_roles
 from app.core.config import get_settings
-from app.models import OrderEvent, OrderStatus, Payment, Role, ServiceOrder, User
-from app.schemas.orders import AssignRequest, CreatedOrder, OrderCreate, OrderRead, PartLink, PaymentCreate, PaymentRead, QuoteDecision, QuoteUpdate, TransitionRequest
+from app.models import OrderEvent, OrderStatus, Role, ServiceOrder, User
+from app.schemas.orders import (
+    AssignRequest,
+    CreatedOrder,
+    OrderCreate,
+    OrderRead,
+    PartLink,
+    PaymentCreate,
+    PaymentRead,
+    QuoteDecision,
+    QuoteUpdate,
+    TransitionRequest,
+)
 from app.services import orders
 from app.services.presentation import order_view
 

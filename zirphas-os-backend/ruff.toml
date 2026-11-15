@@ -1,0 +1,13 @@
+target-version = "py312"
+line-length = 120
+extend-exclude = ["alembic/versions"]
+
+[lint]
+select = ["E", "F", "I", "B", "UP", "S", "RUF"]
+# B008: FastAPI declares dependencies as default arguments. E501: long lines are left to review.
+# UP042: StrEnum would change str() output of persisted enums.
+ignore = ["B008", "E501", "UP042"]
+
+[lint.per-file-ignores]
+# Tests use assert and fixed fake credentials by design.
+"tests/**" = ["S101", "S105", "S106"]

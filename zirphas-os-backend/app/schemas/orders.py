@@ -5,7 +5,7 @@ from typing import Literal
 from pydantic import Field
 
 from app.models.enums import OrderStatus
-from app.schemas.common import InputModel, OutputModel, Money
+from app.schemas.common import InputModel, Money, OutputModel
 
 
 class PhysicalChecklist(InputModel):

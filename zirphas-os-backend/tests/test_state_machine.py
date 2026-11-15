@@ -5,7 +5,6 @@ import pytest
 from app.core.os_state_machine import InvalidTransition, StateContext, transition_state
 from app.models.enums import OrderStatus as S
 
-
 READY = StateContext(
     has_device_identity=True, has_physical_checklist=True, has_technician=True,
     has_technical_report=True, quote_is_approved=True, stock_available=True,
