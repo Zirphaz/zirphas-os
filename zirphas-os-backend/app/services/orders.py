@@ -14,11 +14,17 @@ from sqlalchemy.orm import Session
 
 from app.core.os_state_machine import InvalidTransition, StateContext, transition_state
 from app.models import (
-    CashEntry, Device, OrderEvent, OrderPart, Part, Payment, ServiceOrder, User,
+    CashEntry,
+    Device,
+    OrderEvent,
+    OrderPart,
+    Part,
+    Payment,
+    ServiceOrder,
+    User,
 )
 from app.models.base import utcnow
 from app.models.enums import OrderStatus, Role
-
 
 CENT = Decimal("0.01")
 ZERO = Decimal("0.00")

@@ -1,7 +1,7 @@
+import warnings
 from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
-import warnings
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from fastapi.responses import FileResponse

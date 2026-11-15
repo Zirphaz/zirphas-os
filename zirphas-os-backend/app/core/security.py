@@ -1,6 +1,6 @@
 """Argon2 password hashing and short-lived, versioned access tokens."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from pwdlib import PasswordHash
@@ -10,8 +10,8 @@ from app.core.config import get_settings
 from app.models.enums import Role
 
 ALGORITHM = "HS256"
-TOKEN_ISSUER = "zirphas-os"
-TOKEN_AUDIENCE = "zirphas-os-api"
+TOKEN_ISSUER = "zirphas-os"  # noqa: S105 - JWT claim, not a secret
+TOKEN_AUDIENCE = "zirphas-os-api"  # noqa: S105 - JWT claim, not a secret
 password_hasher = PasswordHash.recommended()
 # Run the same password verification even when an account does not exist.
 DUMMY_PASSWORD_HASH = password_hasher.hash("unused-login-timing-placeholder")
@@ -30,7 +30,7 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 def create_access_token(user_id: int, role: Role, token_version: int = 0) -> str:
     settings = get_settings()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload = {
         "sub": str(user_id),
         "role": role.value,

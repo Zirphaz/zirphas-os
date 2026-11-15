@@ -8,10 +8,16 @@ from sqlalchemy.orm import Session
 
 from app.models import CashEntry, Client, Device, Part, Payment, ServiceOrder, User
 from app.models.base import Base
-from app.models.enums import OrderStatus as S, Role
+from app.models.enums import OrderStatus as S
+from app.models.enums import Role
 from app.services.orders import (
-    create_order, decide_quote, get_order, record_payment, set_part,
-    transition_order, update_quote,
+    create_order,
+    decide_quote,
+    get_order,
+    record_payment,
+    set_part,
+    transition_order,
+    update_quote,
 )
 
 

@@ -82,4 +82,10 @@ Set strong, distinct values for `POSTGRES_PASSWORD` and `SECRET_KEY` before star
 
 The recorded suite contains **68 passing tests**, including five PostgreSQL scenarios for concurrency and financial integrity. CI applies migrations and runs the suite against PostgreSQL. The [validation record](zirphas-os-backend/docs/VALIDATION.md) separates completed checks from work that still requires a deployment environment.
 
+A separate CI job checks the code with ruff (including flake8-bandit security rules), runs bandit static analysis, and audits pinned dependencies with pip-audit. Dependabot proposes weekly updates for Python packages and GitHub Actions.
+
 The current version provides the back-end API and a customer tracking page. Staff operations use Swagger; a dedicated staff dashboard, multi-company isolation, real-time updates, and external notifications remain outside the implemented scope.
+
+## License
+
+Released under the [MIT License](LICENSE).

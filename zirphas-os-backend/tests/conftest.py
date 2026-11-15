@@ -1,6 +1,5 @@
 """HTTP tests run independently of local .env and production credentials."""
 import os
-from pathlib import Path
 
 os.environ["DATABASE_URL"] = "sqlite://"
 os.environ["SECRET_KEY"] = "test-only-key-with-more-than-thirty-two-characters"
