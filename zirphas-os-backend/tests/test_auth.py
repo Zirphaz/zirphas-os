@@ -1,5 +1,8 @@
 """Security boundaries: roles, account revocation, and administrator continuity."""
 
+import json
+import logging
+
 import jwt
 import pytest
 from fastapi import FastAPI
@@ -10,7 +13,9 @@ from sqlalchemy.pool import StaticPool
 
 from app.api.v1.endpoints import auth, users
 from app.core.config import get_settings
+from app.core.login_throttle import LoginThrottle, login_throttle
 from app.core.security import create_access_token, hash_password
+from app.core.security_log import account_fingerprint
 from app.db import get_db
 from app.models import User
 from app.models.base import Base
@@ -152,3 +157,62 @@ def test_invalid_expired_and_wrong_audience_tokens_are_rejected(auth_context):
         assert client.get(
             "/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"}
         ).status_code == 401
+
+
+class FakeClock:
+    def __init__(self):
+        self.now = 1000.0
+
+    def __call__(self):
+        return self.now
+
+
+def attempt(client, password, email="admin@example.com"):
+    return client.post("/api/v1/auth/token", data={"username": email, "password": password})
+
+
+def test_throttle_blocks_after_limit_and_expires_with_window():
+    clock = FakeClock()
+    throttle = LoginThrottle(max_failures=3, window_seconds=60, clock=clock)
+    for _ in range(3):
+        assert throttle.retry_after("1.2.3.4", "a@example.com") is None
+        throttle.record_failure("1.2.3.4", "a@example.com")
+    assert throttle.retry_after("1.2.3.4", "a@example.com") == 60
+    assert throttle.retry_after("5.6.7.8", "a@example.com") is None
+    assert throttle.retry_after("1.2.3.4", "b@example.com") is None
+    clock.now += 45
+    assert throttle.retry_after("1.2.3.4", "a@example.com") == 15
+    clock.now += 15
+    assert throttle.retry_after("1.2.3.4", "a@example.com") is None
+
+
+def test_login_returns_429_after_repeated_failures_even_with_correct_password(auth_context):
+    client, _ = auth_context
+    for _ in range(login_throttle.max_failures):
+        assert attempt(client, "incorrect").status_code == 401
+    blocked = attempt(client, PASSWORD)
+    assert blocked.status_code == 429
+    assert int(blocked.headers["retry-after"]) > 0
+    # Normalization means changing case or adding spaces does not bypass the limit.
+    assert attempt(client, PASSWORD, "  ADMIN@example.com ").status_code == 429
+
+
+def test_successful_login_resets_failure_count(auth_context):
+    client, _ = auth_context
+    for _ in range(login_throttle.max_failures - 1):
+        assert attempt(client, "incorrect").status_code == 401
+    assert attempt(client, PASSWORD).status_code == 200
+    for _ in range(login_throttle.max_failures - 1):
+        assert attempt(client, "incorrect").status_code == 401
+    assert attempt(client, PASSWORD).status_code == 200
+
+
+def test_login_events_are_logged_as_json_without_clear_text_email(auth_context, caplog):
+    client, _ = auth_context
+    with caplog.at_level(logging.INFO, logger="zirphas.security"):
+        attempt(client, "incorrect")
+        attempt(client, PASSWORD)
+    events = [json.loads(record.getMessage()) for record in caplog.records if record.name == "zirphas.security"]
+    assert [event["event"] for event in events] == ["auth.login_failure", "auth.login_success"]
+    assert all(event["account"] == account_fingerprint("admin@example.com") for event in events)
+    assert "admin@example.com" not in caplog.text
