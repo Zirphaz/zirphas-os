@@ -54,7 +54,7 @@ jobs:
         run: python -m pytest -q --junitxml=pytest-results.xml --cov=app --cov-report=term-missing:skip-covered
       - name: Save test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pytest-results
           path: zirphas-os-backend/pytest-results.xml
