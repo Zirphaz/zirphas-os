@@ -61,9 +61,9 @@ pillow==13.0.0
     # via -r requirements.in
 pluggy==1.6.0
     # via pytest
-psycopg[binary]==3.3.6
+psycopg[binary]==3.3.9
     # via -r requirements.in
-psycopg-binary==3.3.6
+psycopg-binary==3.3.9
     # via psycopg
 pwdlib[argon2]==0.3.1
     # via -r requirements.in
