@@ -39,7 +39,7 @@ jobs:
       SECRET_KEY: ci-only-ephemeral-signing-key-at-least-32-characters
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -68,7 +68,7 @@ jobs:
         working-directory: zirphas-os-backend
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Install analysis tools
